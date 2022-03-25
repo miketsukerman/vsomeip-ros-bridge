@@ -10,4 +10,4 @@ interface TimeServer {
             Time time
         }
     }
-}
+} 

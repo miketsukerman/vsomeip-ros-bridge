@@ -10,5 +10,9 @@ auto main() -> int
 
     auto service = runtime->buildProxy<v0::gnss::TimeServerProxy>("local","gnss.TimeServer");
 
+    service->getNowEvent().subscribe([](::v0::gnss::common::Time time) {
+        std::cout << "test" << std::endl;
+    });
+
     return 0;
 }

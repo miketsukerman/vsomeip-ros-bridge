@@ -14,7 +14,7 @@ define org.genivi.commonapi.someip.deployment for interface gnss.TimeServer {
 define org.genivi.commonapi.someip.deployment for provider as Service {
 
     instance gnss.TimeServer {
-        InstanceId = "gnss.TimeServer"
+        InstanceId = "TimeServer"
         SomeIpInstanceID = 1
     }
 }
