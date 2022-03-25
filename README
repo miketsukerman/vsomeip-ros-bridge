@@ -1,0 +1,4 @@
+# Bridge between VSOMEIP and ROS environment
+
+Proof of concept project which tries to create a bridge between vsomeip / common-api
+and ROS linux rpc's
