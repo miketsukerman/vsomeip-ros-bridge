@@ -15,6 +15,9 @@ find_package(CommonAPI REQUIRED)
 find_package(CommonAPI-SomeIP REQUIRED)
 
 add_custom_command(
+    DEPENDS 
+        ${CMAKE_CURRENT_SOURCE_DIR}/source/idl/gnss.fidl 
+        ${CMAKE_CURRENT_SOURCE_DIR}/source/idl/types.fidl 
     OUTPUT
         ${CMAKE_BINARY_DIR}/gen/v0/gnss/TimeServer.hpp
         ${CMAKE_BINARY_DIR}/gen/v0/gnss/TimeServerProxyBase.hpp
@@ -25,6 +28,9 @@ add_custom_command(
 )
 
 add_custom_command(
+    DEPENDS 
+        ${CMAKE_CURRENT_SOURCE_DIR}/source/idl/gnss.fdepl 
+        ${CMAKE_CURRENT_SOURCE_DIR}/source/idl/types.fidl 
     OUTPUT
         ${CMAKE_BINARY_DIR}/gen/v0/gnss/TimeServerSomeIPProxy.cpp
         ${CMAKE_BINARY_DIR}/gen/v0/gnss/commonSomeIPDeployment.cpp
