@@ -1,0 +1,13 @@
+package gnss
+
+import gnss.common.* from "types.fidl"
+
+interface TimeServer {
+    version { major 0 minor 1 }
+
+    broadcast now {
+        out {
+            Time time
+        }
+    }
+}

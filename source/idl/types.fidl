@@ -1,0 +1,11 @@
+package gnss 
+
+typeCollection common {
+    version {major 0 minor 1}
+
+    struct Time {
+        UInt8 hours
+        UInt8 minutes
+        UInt8 seconds
+    }
+}
