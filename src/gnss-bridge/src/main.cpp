@@ -1,80 +1,103 @@
-#include <iostream>
-
-#include <boost/log/core.hpp>
-#include <boost/log/sources/severity_logger.hpp>
-#include <boost/log/trivial.hpp>
-
-#include <boost/asio/io_service.hpp>
+#include "rclcpp/rclcpp.hpp"
+#include "std_msgs/msg/string.hpp"
 
 #include <CommonAPI/CommonAPI.hpp>
 #include <v0/gnss/TimeServerProxy.hpp>
 
-namespace logging = boost::log;
-namespace src = boost::log::sources;
-namespace sinks = boost::log::sinks;
-namespace keywords = boost::log::keywords;
+#include <nlohmann/json.hpp>
 
-auto main() -> int 
+class GnssSomeIpPublisher : public rclcpp::Node
 {
-    using namespace logging::trivial;
-    src::severity_logger< severity_level > lg;
-
-    BOOST_LOG_SEV(lg, trace) << "GNSS Client " << GNSS_CLIENT_VERSION;
-
-    try
+public:
+    GnssSomeIpPublisher() 
+        : Node("GNSS_SOMEIP_Bridge")
+        , someip_proxy(CommonAPI::Runtime::get()->buildProxy<v0::gnss::TimeServerProxy>("local","TimeServer"))
+        , availability_status(CommonAPI::AvailabilityStatus::UNKNOWN)
     {
-        boost::asio::io_service io_service;
+        publisher = this->create_publisher<std_msgs::msg::String>("GNSS", 10);
 
-        auto runtime = CommonAPI::Runtime::get();
-
-        auto timeServerProxy = runtime->buildProxy<v0::gnss::TimeServerProxy>("local","TimeServer");
-
-        if(timeServerProxy == nullptr) {
-            BOOST_LOG_SEV(lg, trace) << "GNSS client proxy is null";
-            return 1;
+        if(!someip_proxy)
+        {
+            //TODO: handle error case correctly
+            RCLCPP_INFO(this->get_logger(), "Failed to create SOME/IP TimeServer proxy");
         }
 
-        CommonAPI::AvailabilityStatus availabilityStatus = CommonAPI::AvailabilityStatus::UNKNOWN;
-        std::promise<CommonAPI::AvailabilityStatus> availabilityStatusPromise;
+        RCLCPP_INFO(this->get_logger(), "SOME/IP TimeServer has been created");
         
-        auto availabilityStatusFuture = availabilityStatusPromise.get_future();
-        timeServerProxy->getProxyStatusEvent().subscribe([&](CommonAPI::AvailabilityStatus status)
+        auto availabilityStatusFuture = availability_status_promise.get_future();
+        someip_proxy->getProxyStatusEvent().subscribe([this](CommonAPI::AvailabilityStatus status)
         {
-            BOOST_LOG_SEV(lg, trace) << "Receiving interface " 
-                                     << timeServerProxy->getInterface() 
-                                     << " availability status= " 
-                                     << static_cast<uint16_t>(status);
+            RCLCPP_INFO(get_logger(), "Receiving interface %s availability status = %d" 
+                                     ,someip_proxy->getInterface() 
+                                     ,static_cast<uint16_t>(status));
 
             if (status == CommonAPI::AvailabilityStatus::AVAILABLE)
             {
-                availabilityStatusPromise.set_value(status);
+                availability_status_promise.set_value(status);
             }
         });
 
         std::future_status futureStatus = availabilityStatusFuture.wait_for(std::chrono::seconds(3));
         
         if (futureStatus == std::future_status::ready) {
-            availabilityStatus = availabilityStatusFuture.get();
+            availability_status = availabilityStatusFuture.get();
 
-            timeServerProxy->getNowEvent().subscribe([&](const ::v0::gnss::common::Time & time) {
-                BOOST_LOG_SEV(lg, trace) << "time event";
+            RCLCPP_INFO(this->get_logger(), "Proxy is ready, subscribing for an event");
+
+            someip_proxy->getNowEvent().subscribe([this](const ::v0::gnss::common::Time & time) {
+                RCLCPP_INFO(get_logger(), "GNSS Time broadcast received H=%d M=%d S=%d"
+                            , time.getHours(), time.getMinutes(), time.getSeconds());
+
+                log(time);
             });
         } else {
-            BOOST_LOG_SEV(lg, trace) << "proxy not available, exiting..." << std::endl;
-            return 2;
+            //TODO: handle error case properly
+            RCLCPP_INFO(this->get_logger(), "proxy not available");
         }
-
-        while(true)
-        {
-            std::this_thread::sleep_for(std::chrono::seconds(1));
-        }
-
-        io_service.run();
-    }
-    catch (std::exception& e)
-    {
-        std::printf("Exception: %s\n", e.what());
     }
 
+private:
+
+    void log(const v0::gnss::common::Time & time) {
+        
+        using json = nlohmann::json;
+        
+        json j = json({});
+        auto message = std_msgs::msg::String();
+
+        j["gnss"] = {
+            {"time", 
+                {"hours", time.getHours()},
+                {"minutes", time.getMinutes()},
+                {"seconds", time.getSeconds()} 
+            }
+        };
+
+        std::stringstream strstream; 
+        strstream << j;
+        auto str = strstream.str();
+
+        message.data = str;
+
+        RCLCPP_INFO(this->get_logger(), "Publishing to the GNSS topic");
+        RCLCPP_INFO(this->get_logger(), str.c_str());
+
+        publisher->publish(message);
+    }
+
+private:
+    CommonAPI::AvailabilityStatus availability_status;
+    std::promise<CommonAPI::AvailabilityStatus> availability_status_promise;
+
+    std::shared_ptr<v0::gnss::TimeServerProxy<>> someip_proxy;
+    rclcpp::Publisher<std_msgs::msg::String>::SharedPtr publisher;
+};
+
+
+auto main(int argc, char **argv) -> int 
+{
+    rclcpp::init(argc, argv);
+    rclcpp::spin(std::make_shared<GnssSomeIpPublisher>());
+    rclcpp::shutdown();
     return 0;
 }
