@@ -3,6 +3,8 @@
 Proof of concept project which tries to create a bridge between vsomeip / common-api
 and ROS linux environment.
 
+[![asciicast](https://asciinema.org/a/14.png)](https://asciinema.org/a/14)
+
 # Problem definition
 
 Make SOME/IP data available in ROS2 natively.
