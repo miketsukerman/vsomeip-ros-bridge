@@ -10,7 +10,6 @@ include(GNUInstallDirs)
 
 find_package(ament_cmake REQUIRED)
 
-find_package(Threads REQUIRED)
 find_package(CommonAPI REQUIRED)
 find_package(CommonAPI-SomeIP REQUIRED)
 find_package(gnss REQUIRED)
@@ -30,7 +29,6 @@ target_include_directories(${SERVER_TARGET_NAME} PRIVATE
 target_link_libraries(${SERVER_TARGET_NAME} PRIVATE
     CommonAPI
     CommonAPI-SomeIP
-    Threads::Threads
     gnss::gnss
     rclcpp::rclcpp
 )
