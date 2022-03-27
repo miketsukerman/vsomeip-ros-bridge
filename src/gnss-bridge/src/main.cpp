@@ -69,9 +69,7 @@ class TimeSomeIpClient : public AbstractSomeIpClient
     using MessageCallback = std::function<void(const std_msgs::msg::String & message)>;
 
 public:
-    TimeSomeIpClient() : 
-          someip_proxy(CommonAPI::Runtime::get()->buildProxy<v0::gnss::TimeServerProxy>(domain,instance)) 
-        , availability_status(CommonAPI::AvailabilityStatus::UNKNOWN) 
+    TimeSomeIpClient() : someip_proxy(CommonAPI::Runtime::get()->buildProxy<v0::gnss::TimeServerProxy>(domain,instance)) 
     {
         init();
     }
@@ -105,8 +103,6 @@ protected:
 
         if (status == CommonAPI::AvailabilityStatus::AVAILABLE)
         {
-            availability_status_promise.set_value(status);
-
             someip_proxy->getNowEvent().subscribe([this](const ::v0::gnss::common::Time & time) {
 
                 auto message = Types::to_message(time);
