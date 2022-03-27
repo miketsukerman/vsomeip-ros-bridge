@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
+<package format="3">
+  <name>gnss_bridge</name>
+  <version>0.0.1</version>
+  <description>Bridge between SOME/IP and ROS</description>
+  <maintainer email="miketsukerman@gmail.com">Mikhail Tsukerman</maintainer>
+  <license>MIT</license>
+
+  <buildtool_depend>ament_cmake</buildtool_depend>
+
+  <build_depend>rclcpp</build_depend>
+  <build_depend>gnss_someip_lib</build_depend>
+
+  <exec_depend>rclcpp</exec_depend>
+
+  <test_depend>ament_lint_auto</test_depend>
+  <test_depend>ament_lint_common</test_depend>
+
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
+</package>

@@ -10,4 +10,13 @@ compose:
 run: compose
 	docker-compose up
 
+run-force: compose 
+	docker-compose up --force-recreate
+
+clean: 
+	rm -rf build install log
+
+colcon-build:
+	colcon build
+
 .PHONY: compose run enter-build-env
