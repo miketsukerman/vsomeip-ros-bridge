@@ -1,9 +1,9 @@
+#include <chrono>
+
 #include "rclcpp/rclcpp.hpp"
 
 #include <CommonAPI/CommonAPI.hpp>
 #include <v0/gnss/TimeServerStubDefault.hpp>
-
-#include <chrono>
 
 using namespace std::chrono;
 
@@ -36,6 +36,7 @@ public:
     {
         if(!CommonAPI::Runtime::get()->registerService("local","TimeServer", someip_provider))
         {
+            //TODO: handle error case correctly
             RCLCPP_INFO(this->get_logger(), "Failed to register SOME/IP TimeServer");
         }
         
