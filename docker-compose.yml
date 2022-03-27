@@ -1,12 +1,28 @@
 version: "3"
 
 services:
-  server:
+  gnss-server:
+    tty: true
     build:
       context: ./
       dockerfile: Dockerfile.server
+    command: init.sh
+    networks:
+      mynet:
+        ipv4_address: 192.168.1.2
 
-  client:
+  gnss-client:
+    tty: true
     build: 
       context: ./ 
       dockerfile: Dockerfile.client
+    command: init.sh
+    networks:
+      mynet:
+        ipv4_address: 192.168.1.3
+networks:
+  mynet:
+    driver: bridge
+    ipam:
+     config:
+       - subnet: 192.168.1.0/24

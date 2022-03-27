@@ -1,2 +1,6 @@
 FROM vsomeip-ros-bridge:base
 
+COPY config/vsomeip-server.json /etc/vsomeip.json
+COPY config/init-server.sh /usr/bin/init.sh
+
+RUN chmod +x /usr/bin/init.sh
