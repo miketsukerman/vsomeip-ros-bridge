@@ -11,10 +11,8 @@ include(GNUInstallDirs)
 find_package(ament_cmake REQUIRED)
 
 find_package(Threads REQUIRED)
-find_package(Boost COMPONENTS log system CONFIG REQUIRED)
 find_package(CommonAPI REQUIRED)
 find_package(CommonAPI-SomeIP REQUIRED)
-find_package(nlohmann_json REQUIRED)
 find_package(gnss REQUIRED)
 
 find_package(ament_cmake REQUIRED)
@@ -33,8 +31,6 @@ target_link_libraries(${SERVER_TARGET_NAME} PRIVATE
     CommonAPI
     CommonAPI-SomeIP
     Threads::Threads
-    Boost::log
-    Boost::system
     gnss::gnss
     rclcpp::rclcpp
 )

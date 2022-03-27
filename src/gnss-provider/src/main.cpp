@@ -2,26 +2,12 @@
 
 #include "rclcpp/rclcpp.hpp"
 
-#include <boost/log/core.hpp>
-#include <boost/log/sources/severity_logger.hpp>
-#include <boost/log/trivial.hpp>
-
-#include <boost/asio/io_service.hpp>
-
 #include <CommonAPI/CommonAPI.hpp>
 #include <v0/gnss/TimeServerStubDefault.hpp>
 
 #include <chrono>
 
-namespace logging = boost::log;
-namespace src = boost::log::sources;
-namespace sinks = boost::log::sinks;
-namespace keywords = boost::log::keywords;
-
 using namespace std::chrono;
-
-using namespace logging::trivial;
-src::severity_logger< severity_level > lg;
 
 class GnssSomeIpProvider : public v0::gnss::TimeServerStubDefault {
 
@@ -32,16 +18,11 @@ public:
     void fireNowEvent() {
         v0::gnss::common::Time time;
 
-        auto current_time = std::chrono::system_clock::now().time_since_epoch();
+        auto current_time = system_clock::now().time_since_epoch();
 
-        time.setHours(std::chrono::duration_cast<std::chrono::hours>(current_time).count());
-        time.setMinutes(std::chrono::duration_cast<std::chrono::minutes>(current_time).count());
-        time.setSeconds(std::chrono::duration_cast<std::chrono::seconds>(current_time).count());
-
-        BOOST_LOG_SEV(lg, info) << "broadcast current time " 
-                                << static_cast<int>(time.getHours()) << ":" 
-                                << static_cast<int>(time.getMinutes()) << ":"
-                                << static_cast<int>(time.getSeconds());
+        time.setHours(duration_cast<hours>(current_time).count());
+        time.setMinutes(duration_cast<minutes>(current_time).count());
+        time.setSeconds(duration_cast<seconds>(current_time).count());
 
         TimeServerStub::fireNowEvent(time);
     }
