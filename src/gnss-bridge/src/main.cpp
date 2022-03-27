@@ -30,10 +30,11 @@ auto to_string(const v0::gnss::common::Time & time) -> std::string {
     auto message = std_msgs::msg::String();
 
     j["gnss"] = {
-        {"time", 
+        {"time", {
             {"hours", time.getHours()},
             {"minutes", time.getMinutes()},
             {"seconds", time.getSeconds()} 
+            }
         }
     };
 
@@ -44,15 +45,9 @@ auto to_string(const v0::gnss::common::Time & time) -> std::string {
 
 template <typename T>
 auto to_message(const T & t) -> std_msgs::msg::String {
-    return std_msgs::msg::String();
-}
-
-template <>
-auto to_message(const v0::gnss::common::Time & time) -> std_msgs::msg::String {
-    
     auto message = std_msgs::msg::String();
 
-    message.data = to_string(time);
+    message.data = to_string(t);
 
     return message;
 }
@@ -102,16 +97,7 @@ protected:
             return;
         }
 
-        // auto availabilityStatusFuture = availability_status_promise.get_future();
         someip_proxy->getProxyStatusEvent().subscribe(std::bind(&TimeSomeIpClient::onAvailable, this, std::placeholders::_1));
-
-        // std::future_status futureStatus = availabilityStatusFuture.wait_for(std::chrono::seconds(3));
-        
-        // if (futureStatus == std::future_status::ready) {
-        //     availability_status = availabilityStatusFuture.get();
-        // } else {
-        //     //TODO: handle error case properly
-        // }
     }
 
     void onAvailable(CommonAPI::AvailabilityStatus status) {
@@ -132,40 +118,34 @@ protected:
     }
 
 private:
-    CommonAPI::AvailabilityStatus availability_status;
-    std::promise<CommonAPI::AvailabilityStatus> availability_status_promise;
-
     MessageCallback message_callback;
 
     std::shared_ptr<v0::gnss::TimeServerProxy<>> someip_proxy;
 };
 
-class GnssSomeIpPublisher : public rclcpp::Node
+template <typename SomeIpClient> 
+class SomeIpPublisher : public rclcpp::Node
 {
-    static constexpr auto Topic = "GNSS";
-    static constexpr auto QoS = 10;
-
 public:
-    GnssSomeIpPublisher() 
-        : Node("GNSS_SOMEIP_Bridge")
+    SomeIpPublisher(std::string node_name, std::string topic, int qos) 
+        : Node(node_name)
     {
-        publisher = this->create_publisher<std_msgs::msg::String>(Topic, QoS);
+        publisher = this->create_publisher<std_msgs::msg::String>(topic, qos);
 
-        someip_client.setMessageCallback(std::bind(&GnssSomeIpPublisher::publish, this, std::placeholders::_1));
+        someip_client.setMessageCallback(std::bind(&SomeIpPublisher::publish, this, std::placeholders::_1));
     }
 
 private:
 
     void publish(const std_msgs::msg::String & message) {        
 
-        RCLCPP_INFO(this->get_logger(), "Publishing to the GNSS topic");
-        RCLCPP_INFO(this->get_logger(), message.data.c_str());
+        RCLCPP_INFO(this->get_logger(), "Publishing %s ", message.data.c_str());
 
         publisher->publish(message);
     }
 
 private:
-    TimeSomeIpClient someip_client;
+    SomeIpClient someip_client;
     
     rclcpp::Publisher<std_msgs::msg::String>::SharedPtr publisher;
 };
@@ -173,8 +153,11 @@ private:
 
 auto main(int argc, char **argv) -> int 
 {
+    constexpr auto Topic = "GNSS";
+    constexpr auto QoS = 10;
+
     rclcpp::init(argc, argv);
-    rclcpp::spin(std::make_shared<GnssSomeIpPublisher>());
+    rclcpp::spin(std::make_shared<SomeIpPublisher<TimeSomeIpClient>>("GNSS_SOMEIP_Bridge", Topic, QoS));
     rclcpp::shutdown();
     return 0;
 }
