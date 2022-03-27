@@ -1,5 +1,3 @@
-#include <iostream>
-
 #include "rclcpp/rclcpp.hpp"
 
 #include <CommonAPI/CommonAPI.hpp>
