@@ -37,3 +37,11 @@ sample output
     Deleted Networks:
     vsomeip-ros-bridge_mynet
 ```
+
+# Links
+
+* https://colcon.readthedocs.io/en/released/user/how-to.html
+* https://hub.docker.com/_/ros
+* https://docs.ros.org/en/foxy/Tutorials/Composition.html
+* https://docs.ros.org/en/foxy/Tutorials/Topics/Understanding-ROS2-Topics.html
+* https://docs.ros.org/en/foxy/Tutorials/Understanding-ROS2-Nodes.html
