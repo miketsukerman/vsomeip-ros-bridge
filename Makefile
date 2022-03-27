@@ -19,4 +19,16 @@ clean:
 colcon-build:
 	colcon build
 
-.PHONY: compose run enter-build-env
+gnss-provider:
+	colcon build --packages-select gnss_provider
+
+gnss-bridge:
+	colcon build --packages-select gnss_bridge
+
+gnss-someip-lib:
+	colcon build --packages-select gnss_someip_lib
+
+gnss-listener:
+	colcon build --packages-select gnss_listener
+
+.PHONY: compose run enter-build-env build-gnss-provider
