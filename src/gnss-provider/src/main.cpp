@@ -1,5 +1,7 @@
 #include <iostream>
 
+#include "rclcpp/rclcpp.hpp"
+
 #include <boost/log/core.hpp>
 #include <boost/log/sources/severity_logger.hpp>
 #include <boost/log/trivial.hpp>
@@ -21,11 +23,11 @@ using namespace std::chrono;
 using namespace logging::trivial;
 src::severity_logger< severity_level > lg;
 
-class GnssTimeServer : public v0::gnss::TimeServerStubDefault {
+class GnssSomeIpProvider : public v0::gnss::TimeServerStubDefault {
 
 public:
-    GnssTimeServer() = default;
-    ~GnssTimeServer() = default;
+    GnssSomeIpProvider() = default;
+    ~GnssSomeIpProvider() = default;
 
     void fireNowEvent() {
         v0::gnss::common::Time time;
@@ -46,40 +48,36 @@ public:
 
 };
 
-auto main() -> int 
+class GnssSomeIpReporter : public rclcpp::Node
 {
-    BOOST_LOG_SEV(lg, trace) << "GNSS Server " << GNSS_SERVER_VERSION;
-
-    try
+public:
+    GnssSomeIpReporter() 
+        : Node("GNSS_SOMEIP_Reporter")
+        , someip_provider(std::make_shared<GnssSomeIpProvider>())
     {
-        boost::asio::io_service io_service;
-
-        auto runtime = CommonAPI::Runtime::get();
-
-        auto service = std::make_shared<GnssTimeServer>();
-
-        BOOST_LOG_SEV(lg, info) << "Initialising " << GnssTimeServer::StubInterface::getInterface();
-
-        if(!runtime->registerService("local","TimeServer", service))
+        if(!CommonAPI::Runtime::get()->registerService("local","TimeServer", someip_provider))
         {
-            BOOST_LOG_SEV(lg, error) << "failed to register GNSS SOME/IP provider " << GNSS_SERVER_VERSION;
-            return 1;
-        }
-
-        BOOST_LOG_SEV(lg, info) << GnssTimeServer::StubInterface::getInterface() << " registered";
-
-        while(true) {
-            service->fireNowEvent();
-
-            std::this_thread::sleep_for(std::chrono::seconds(1));
+            RCLCPP_INFO(this->get_logger(), "Failed to register SOME/IP TimeServer");
         }
         
-        io_service.run();
-    }
-    catch (std::exception& e)
-    {
-        std::printf("Exception: %s\n", e.what());
+        RCLCPP_INFO(this->get_logger(), "SOME/IP TimeServer has been registered");
+
+        publish_timer = this->create_wall_timer(2s, [this]() {            
+            RCLCPP_INFO(this->get_logger(), "Broadcast GNSS time over SOME/IP");
+            someip_provider->fireNowEvent();
+        });
+
     }
 
+private:
+    rclcpp::TimerBase::SharedPtr publish_timer;
+    std::shared_ptr<GnssSomeIpProvider> someip_provider;
+};
+
+auto main(int argc, char **argv) -> int 
+{
+    rclcpp::init(argc, argv);
+    rclcpp::spin(std::make_shared<GnssSomeIpReporter>());
+    rclcpp::shutdown();
     return 0;
 }

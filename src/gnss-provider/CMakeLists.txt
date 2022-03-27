@@ -36,6 +36,7 @@ target_link_libraries(${SERVER_TARGET_NAME} PRIVATE
     Boost::log
     Boost::system
     gnss::gnss
+    rclcpp::rclcpp
 )
 
 target_compile_features(${SERVER_TARGET_NAME} PRIVATE cxx_std_17)
