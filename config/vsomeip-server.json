@@ -1,0 +1,33 @@
+{
+    "unicast" : "192.168.1.2",
+    "netmask" : "255.255.255.0",
+    "logging" :
+    {
+        "level" : "debug",
+        "console" : "true",
+        "file" : { "enable" : "false", "path" : "/var/log/vsomeip.log" },
+        "dlt" : "true"
+    },
+    "servicegroups": [
+        {
+            "name" : "gnss",
+            "services" :
+            [
+                {
+                    "service" : "1234",
+                    "instance" : "1",
+                    "reliable" : { "port" : "30509", "enable-magic-cookies" : "false" },
+                    "unreliable" : "31000"
+                }
+            ]
+        }
+    ],
+    "routing" : "routingmanagerd",
+    "service-discovery" :
+    {
+        "enable" : "true",
+        "multicast" : "224.244.224.245",
+        "port" : "30490",
+        "protocol" : "udp"
+    }
+}
