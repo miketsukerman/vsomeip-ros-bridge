@@ -4,8 +4,14 @@ typeCollection common {
     version {major 0 minor 1}
 
     struct Time {
-        UInt8 hours
-        UInt8 minutes
-        UInt8 seconds
+        UInt32 hours
+        UInt32 minutes
+        UInt32 seconds
+    }
+
+    struct Position {
+        UInt32 x
+        UInt32 y
+        UInt32 z
     }
 }

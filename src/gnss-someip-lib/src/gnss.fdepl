@@ -9,6 +9,15 @@ define org.genivi.commonapi.someip.deployment for interface gnss.TimeServer {
         SomeIpEventID = 38001
         SomeIpEventGroups = { 7001 }
     }
+
+    broadcast position {
+        SomeIpEventID = 38002
+        SomeIpEventGroups = { 7002 }
+    }
+
+    method setCorrection {
+        SomeIpMethodID = 1
+    }
 }
 
 define org.genivi.commonapi.someip.deployment for provider as Service {

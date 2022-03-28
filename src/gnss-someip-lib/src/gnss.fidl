@@ -10,4 +10,16 @@ interface TimeServer {
             Time time
         }
     }
+
+    broadcast position {
+        out {
+            Position pos
+        }
+    }
+
+    method setCorrection {
+        in {
+            UInt32 value
+        }
+    }
 } 
