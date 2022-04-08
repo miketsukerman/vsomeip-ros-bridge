@@ -1,5 +1,9 @@
 FROM vsomeip-ros-bridge:base
 
+# copy gnss sample information which would be used by gpsfake
+RUN mkdir /usr/share/nmea
+COPY simulation/gnss-sentences.nmea /usr/share/nmea/simulation.nmea
+
 COPY config/vsomeip-server.json /etc/vsomeip.json
 COPY config/init-server.sh /usr/bin/init.sh
 

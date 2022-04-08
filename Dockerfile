@@ -10,6 +10,7 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends tz
 RUN apt-get install -y openjdk-13-jdk openjdk-13-jre
 RUN apt-get install -y g++ gcc cmake libboost-all-dev make doxygen asciidoc
 RUN apt-get install -y net-tools iproute2
+RUN apt-get install -y python3-pip
 
 # Installation of required libraries
 RUN apt-get install -y libboost-all-dev nlohmann-json3-dev graphviz source-highlight
@@ -34,6 +35,14 @@ RUN cd /opt && git clone https://github.com/COVESA/capicxx-core-runtime.git && c
 
 RUN cd /opt && git clone https://github.com/COVESA/capicxx-someip-runtime.git && cd capicxx-someip-runtime && \
     mkdir build && cd build && cmake -DCMAKE_INSTALL_PREFIX=/usr .. && make -j$(nproc) && make install
+
+RUN cd /opt && git clone https://github.com/cameron314/concurrentqueue.git && cd concurrentqueue && \
+    mkdir build-cmake && cd build-cmake && cmake -DCMAKE_INSTALL_PREFIX=/usr .. && make -j$(nproc) && make install
+
+RUN pip3 install git+https://github.com/miketsukerman/pyfranca.git
+
+# install gpsd and gpsfake to simulate real gnss device data
+RUN apt-get install -y gpsd gpsd-clients libgps-dev
 
 RUN rm -rf /src
 COPY . /src 
