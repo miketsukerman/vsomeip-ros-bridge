@@ -10,8 +10,8 @@ include(GNUInstallDirs)
 
 find_package(CommonAPI REQUIRED)
 find_package(CommonAPI-SomeIP REQUIRED)
-find_package(nlohmann_json REQUIRED)
 find_package(gnss REQUIRED)
+find_package(gnss_ros_lib REQUIRED)
 
 find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
@@ -32,6 +32,8 @@ target_link_libraries(${CLIENT_TARGET_NAME} PRIVATE
     CommonAPI-SomeIP
     gnss::gnss
     rclcpp::rclcpp
+    gnss_ros_lib::gnss_ros_lib__rosidl_generator_cpp    # TODO: figure out how to define exported targets
+    gnss_ros_lib::gnss_ros_lib__rosidl_typesupport_cpp    # TODO: figure out how to define exported targets
 )
 
 install(TARGETS ${CLIENT_TARGET_NAME} DESTINATION lib/${PROJECT_NAME})

@@ -1,29 +1,20 @@
 import "platform:/plugin/org.genivi.commonapi.someip/deployment/CommonAPI-4-SOMEIP_deployment_spec.fdepl"
 import "gnss.fidl"
 
-define org.genivi.commonapi.someip.deployment for interface gnss.TimeServer {
+define org.genivi.commonapi.someip.deployment for interface gnss.GnssServer {
 
     SomeIpServiceID = 1234
 
-    broadcast now {
-        SomeIpEventID = 38001
-        SomeIpEventGroups = { 7001 }
-    }
-
-    broadcast position {
+    broadcast data {
         SomeIpEventID = 38002
         SomeIpEventGroups = { 7002 }
-    }
-
-    method setCorrection {
-        SomeIpMethodID = 1
     }
 }
 
 define org.genivi.commonapi.someip.deployment for provider as Service {
 
-    instance gnss.TimeServer {
-        InstanceId = "TimeServer"
+    instance gnss.GnssServer {
+        InstanceId = "GnssServer"
         SomeIpInstanceID = 1
     }
 }

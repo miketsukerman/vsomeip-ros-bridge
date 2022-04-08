@@ -19,17 +19,17 @@ include(CMakePackageConfigHelpers)
 
 set(GNSS_FILES 
     ${CMAKE_BINARY_DIR}/gen/v0/gnss/common.hpp
-    ${CMAKE_BINARY_DIR}/gen/v0/gnss/TimeServer.hpp
-    ${CMAKE_BINARY_DIR}/gen/v0/gnss/TimeServerProxyBase.hpp
-    ${CMAKE_BINARY_DIR}/gen/v0/gnss/TimeServerProxy.hpp
-    ${CMAKE_BINARY_DIR}/gen/v0/gnss/TimeServerStub.hpp
-    ${CMAKE_BINARY_DIR}/gen/v0/gnss/TimeServerSomeIPProxy.cpp
+    ${CMAKE_BINARY_DIR}/gen/v0/gnss/GnssServer.hpp
+    ${CMAKE_BINARY_DIR}/gen/v0/gnss/GnssServerProxyBase.hpp
+    ${CMAKE_BINARY_DIR}/gen/v0/gnss/GnssServerProxy.hpp
+    ${CMAKE_BINARY_DIR}/gen/v0/gnss/GnssServerStub.hpp
+    ${CMAKE_BINARY_DIR}/gen/v0/gnss/GnssServerSomeIPProxy.cpp
     ${CMAKE_BINARY_DIR}/gen/v0/gnss/commonSomeIPDeployment.cpp
     ${CMAKE_BINARY_DIR}/gen/v0/gnss/commonSomeIPDeployment.hpp
-    ${CMAKE_BINARY_DIR}/gen/v0/gnss/TimeServerSomeIPDeployment.cpp
-    ${CMAKE_BINARY_DIR}/gen/v0/gnss/TimeServerSomeIPDeployment.hpp
-    ${CMAKE_BINARY_DIR}/gen/v0/gnss/TimeServerSomeIPStubAdapter.cpp
-    ${CMAKE_BINARY_DIR}/gen/v0/gnss/TimeServerStubDefault.hpp
+    ${CMAKE_BINARY_DIR}/gen/v0/gnss/GnssServerSomeIPDeployment.cpp
+    ${CMAKE_BINARY_DIR}/gen/v0/gnss/GnssServerSomeIPDeployment.hpp
+    ${CMAKE_BINARY_DIR}/gen/v0/gnss/GnssServerSomeIPStubAdapter.cpp
+    ${CMAKE_BINARY_DIR}/gen/v0/gnss/GnssServerStubDefault.hpp
 )
 
 add_custom_command(

@@ -2,24 +2,12 @@ package gnss
 
 import gnss.common.* from "types.fidl"
 
-interface TimeServer {
+interface GnssServer {
     version { major 0 minor 1 }
 
-    broadcast now {
+    broadcast data {
         out {
-            Time time
-        }
-    }
-
-    broadcast position {
-        out {
-            Position pos
-        }
-    }
-
-    method setCorrection {
-        in {
-            UInt32 value
+            GnssData data
         }
     }
 } 

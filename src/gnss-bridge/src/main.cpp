@@ -2,57 +2,32 @@
 #include "std_msgs/msg/string.hpp"
 
 #include <CommonAPI/CommonAPI.hpp>
-#include <v0/gnss/TimeServerProxy.hpp>
+#include <v0/gnss/GnssServerProxy.hpp>
 
-#include <nlohmann/json.hpp>
+#include <gnss_ros_lib/msg/gps_data.hpp>
 
-namespace Types {
+using GpsDataMsg = gnss_ros_lib::msg::GpsData;
+using GnssData = v0::gnss::common::GnssData;
 
-// this template will handle all simple numeric types 
-// TODO: we might need to specialise this more specifically
-template <typename T> 
-auto to_string(const T & t) -> std::string {
-    std::stringstream strstream; 
+namespace TypesConversion {
+
+GpsDataMsg to_gps_data(const GnssData & gnss_data) {
     
-    strstream << t;
+    GpsDataMsg gps_data_msg; 
 
-    return strstream.str();
+    auto position = gnss_data.getPosition();
+
+    gps_data_msg.fix.latitude = position.getFix().getLatitude();
+    gps_data_msg.fix.longitude = position.getFix().getLongitude();
+    gps_data_msg.dop.hdop = position.getDop().getHdop();
+    gps_data_msg.dop.vdop = position.getDop().getVdop();
+    gps_data_msg.satellites_visible = position.getSatellitesVisible();
+    gps_data_msg.satellites_used = position.getSatellitesUsed();
+
+    return gps_data_msg;
 }
 
-template <> 
-auto to_string(const v0::gnss::common::Time & time) -> std::string {
-
-    using json = nlohmann::json;
-
-    std::stringstream strstream; 
-
-    auto j = json({});
-    auto message = std_msgs::msg::String();
-
-    j["gnss"] = {
-        {"time", {
-            {"hours", time.getHours()},
-            {"minutes", time.getMinutes()},
-            {"seconds", time.getSeconds()} 
-            }
-        }
-    };
-
-    strstream << j;
-
-    return strstream.str();
-}
-
-template <typename T>
-auto to_message(const T & t) -> std_msgs::msg::String {
-    auto message = std_msgs::msg::String();
-
-    message.data = to_string(t);
-
-    return message;
-}
-
-} // namespace Types
+} // namespace TypesConversion
 
 class AbstractSomeIpClient 
 {
@@ -61,15 +36,15 @@ public:
     virtual std::optional<bool> available() = 0;
 };
 
-class TimeSomeIpClient : public AbstractSomeIpClient
+class GnssSomeIpClient : public AbstractSomeIpClient
 {
     static constexpr auto domain = "local";
-    static constexpr auto instance = "TimeServer";
+    static constexpr auto instance = "GnssServer";
 
-    using MessageCallback = std::function<void(const std_msgs::msg::String & message)>;
+    using MessageCallback = std::function<void(const GpsDataMsg & message)>;
 
 public:
-    TimeSomeIpClient() : someip_proxy(CommonAPI::Runtime::get()->buildProxy<v0::gnss::TimeServerProxy>(domain,instance)) 
+    GnssSomeIpClient() : someip_proxy(CommonAPI::Runtime::get()->buildProxy<v0::gnss::GnssServerProxy>(domain,instance)) 
     {
         init();
     }
@@ -95,7 +70,7 @@ protected:
             return;
         }
 
-        someip_proxy->getProxyStatusEvent().subscribe(std::bind(&TimeSomeIpClient::onAvailable, this, std::placeholders::_1));
+        someip_proxy->getProxyStatusEvent().subscribe(std::bind(&GnssSomeIpClient::onAvailable, this, std::placeholders::_1));
     }
 
     void onAvailable(CommonAPI::AvailabilityStatus status) {
@@ -103,9 +78,9 @@ protected:
 
         if (status == CommonAPI::AvailabilityStatus::AVAILABLE)
         {
-            someip_proxy->getNowEvent().subscribe([this](const ::v0::gnss::common::Time & time) {
+            someip_proxy->getDataEvent().subscribe([this](const ::v0::gnss::common::GnssData & data) {
 
-                auto message = Types::to_message(time);
+                auto message = TypesConversion::to_gps_data(data);
 
                 message_callback(message);
             });
@@ -116,26 +91,29 @@ protected:
 private:
     MessageCallback message_callback;
 
-    std::shared_ptr<v0::gnss::TimeServerProxy<>> someip_proxy;
+    std::shared_ptr<v0::gnss::GnssServerProxy<>> someip_proxy;
 };
 
 template <typename SomeIpClient> 
 class SomeIpPublisher : public rclcpp::Node
 {
+    static constexpr auto Topic = "GNSS";
+    static constexpr auto QoS = 10;
+
 public:
-    SomeIpPublisher(std::string node_name, std::string topic, int qos) 
+    SomeIpPublisher(std::string node_name) 
         : Node(node_name)
     {
-        publisher = this->create_publisher<std_msgs::msg::String>(topic, qos);
+        publisher = this->create_publisher<GpsDataMsg>(Topic, QoS);
 
         someip_client.setMessageCallback(std::bind(&SomeIpPublisher::publish, this, std::placeholders::_1));
     }
 
 private:
 
-    void publish(const std_msgs::msg::String & message) {        
+    void publish(const GpsDataMsg & message) {        
 
-        RCLCPP_INFO(this->get_logger(), "Publishing %s ", message.data.c_str());
+//        RCLCPP_INFO(this->get_logger(), "Publishing %s ", message.data.c_str());
 
         publisher->publish(message);
     }
@@ -143,17 +121,13 @@ private:
 private:
     SomeIpClient someip_client;
     
-    rclcpp::Publisher<std_msgs::msg::String>::SharedPtr publisher;
+    rclcpp::Publisher<GpsDataMsg>::SharedPtr publisher;
 };
-
 
 auto main(int argc, char **argv) -> int 
 {
-    constexpr auto Topic = "GNSS";
-    constexpr auto QoS = 10;
-
     rclcpp::init(argc, argv);
-    rclcpp::spin(std::make_shared<SomeIpPublisher<TimeSomeIpClient>>("GNSS_SOMEIP_Bridge", Topic, QoS));
+    rclcpp::spin(std::make_shared<SomeIpPublisher<GnssSomeIpClient>>("GNSS_SOMEIP_Bridge"));
     rclcpp::shutdown();
     return 0;
 }

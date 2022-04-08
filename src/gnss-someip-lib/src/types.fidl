@@ -3,15 +3,38 @@ package gnss
 typeCollection common {
     version {major 0 minor 1}
 
+    enumeration Status {
+        MODE_2D,
+        MODE_3D
+    }
+
     struct Time {
         UInt32 hours
         UInt32 minutes
         UInt32 seconds
     }
 
+    struct Dop {
+        Float hdop 
+        Float vdop 
+        Float pdop 
+    }
+
+    struct Fix {
+        Double latitude
+        Double longitude
+    }
+
     struct Position {
-        UInt32 x
-        UInt32 y
-        UInt32 z
+        UInt32 satellitesVisible
+        UInt32 satellitesUsed
+        Status status
+        Fix fix
+        Dop dop
+    }
+
+    struct GnssData {
+        Position position 
+        Time time
     }
 }

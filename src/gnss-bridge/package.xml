@@ -11,6 +11,7 @@
 
   <build_depend>rclcpp</build_depend>
   <build_depend>gnss_someip_lib</build_depend>
+  <build_depend>gnss_ros_lib</build_depend>
 
   <exec_depend>rclcpp</exec_depend>
 

@@ -1,24 +1,30 @@
 #include "rclcpp/rclcpp.hpp"
-#include "std_msgs/msg/string.hpp"
 
-using std::placeholders::_1;
+#include <gnss_ros_lib/msg/gps_data.hpp>
+
+using GpsDataMsg = gnss_ros_lib::msg::GpsData;
 
 class GnssSubsriber : public rclcpp::Node
 {
+  static constexpr auto topic = "GNSS";
+  static constexpr auto qos = 10;
+
 public:
     GnssSubsriber() : Node("GNSS_Subscriber")
     {
-      subscription = this->create_subscription<std_msgs::msg::String>(
-      "GNSS", 10, std::bind(&GnssSubsriber::topic_callback, this, _1));
+      subscription = this->create_subscription<GpsDataMsg>(topic, qos, std::bind(&GnssSubsriber::topic_callback, this, std::placeholders::_1));
     }
 
 private:
-    void topic_callback(const std_msgs::msg::String::SharedPtr msg) const
+    void topic_callback(const GpsDataMsg & msg) const
     {
-      RCLCPP_INFO(this->get_logger(), "GNSS json: '%s'", msg->data.c_str());
+      RCLCPP_INFO(this->get_logger(), "GNSS position latitude %f, longitude %f", 
+          msg.fix.latitude,
+          msg.fix.longitude
+        );
     }
 
-    rclcpp::Subscription<std_msgs::msg::String>::SharedPtr subscription;
+    rclcpp::Subscription<GpsDataMsg>::SharedPtr subscription;
 };
 
 auto main(int argc, char * argv[]) -> int

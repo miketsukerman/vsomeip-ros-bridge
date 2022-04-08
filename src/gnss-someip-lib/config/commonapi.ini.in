@@ -8,7 +8,7 @@ dlt=true
 level=debug 
 
 [proxy]
-local:gnss.TimeServer:v0_1:TimeServer=@CMAKE_INSTALL_FULL_LIBDIR@/lib@GNSS_TARGET_NAME@.so.@PROJECT_VERSION@
+local:gnss.GnssServer:v0_1:GnssServer=@CMAKE_INSTALL_FULL_LIBDIR@/lib@GNSS_TARGET_NAME@.so.@PROJECT_VERSION@
 
 [stub]
-local:gnss.TimeServer:v0_1:TimeServer=@CMAKE_INSTALL_FULL_LIBDIR@/lib@GNSS_TARGET_NAME@.so.@PROJECT_VERSION@
+local:gnss.GnssServer:v0_1:GnssServer=@CMAKE_INSTALL_FULL_LIBDIR@/lib@GNSS_TARGET_NAME@.so.@PROJECT_VERSION@
