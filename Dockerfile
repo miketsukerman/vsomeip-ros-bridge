@@ -48,6 +48,8 @@ RUN rm -rf /src
 COPY . /src 
 RUN rm -rf /src/build /src/install /src/log
 
+RUN pip3 install -e /src/src/franca2ros
+
 RUN cd /src && rm -rf build install log && \ 
     . /opt/ros/galactic/setup.sh && \
     colcon build
