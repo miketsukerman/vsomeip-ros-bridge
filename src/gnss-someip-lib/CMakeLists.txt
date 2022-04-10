@@ -9,13 +9,50 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
 find_package(ament_cmake REQUIRED)
+find_package(rosidl_default_generators REQUIRED)
 
 find_package(CommonAPITools REQUIRED)
+find_package(FrancaRosTools REQUIRED)
+
 find_package(CommonAPI REQUIRED)
 find_package(CommonAPI-SomeIP REQUIRED)
 
 include(GNUInstallDirs)
 include(CMakePackageConfigHelpers)
+
+# add_custom_command(
+#     OUTPUT
+#         # ${CMAKE_BINARY_DIR}/ros/msg/Dop.msg
+#         # ${CMAKE_BINARY_DIR}/ros/msg/Fix.msg
+#         ${CMAKE_BINARY_DIR}/ros/msg/Position.msg 
+#     COMMAND 
+#         ${FIDL2ROS_TRANSLATOR} -i ${CMAKE_CURRENT_SOURCE_DIR}/src/ -f ${CMAKE_CURRENT_SOURCE_DIR}/src/gnss.fidl -o ${CMAKE_BINARY_DIR}/ros/msg/
+#     DEPENDS 
+#         ${CMAKE_CURRENT_SOURCE_DIR}/src/gnss.fidl 
+#         ${CMAKE_CURRENT_SOURCE_DIR}/src/types.fidl 
+#         ${CMAKE_CURRENT_SOURCE_DIR}/src/gnss.fdepl 
+#     
+# )
+
+execute_process(
+    COMMAND 
+        ${FIDL2ROS_TRANSLATOR} -i ${CMAKE_CURRENT_SOURCE_DIR}/src/ -f ${CMAKE_CURRENT_SOURCE_DIR}/src/gnss.fidl -o ${CMAKE_BINARY_DIR}/ros/msg/
+)
+
+message("${FIDL2ROS_TRANSLATOR} -i ${CMAKE_CURRENT_SOURCE_DIR}/src/ -f ${CMAKE_CURRENT_SOURCE_DIR}/src/gnss.fidl -o ${CMAKE_BINARY_DIR}/ros/msg/")
+
+file(RELATIVE_PATH POSITION_MSG ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_BINARY_DIR}/ros/msg/Position.msg)
+
+set(GNSS_MSG_TARGET_NAME gnss-msg)
+rosidl_generate_interfaces(${GNSS_MSG_TARGET_NAME}
+    # ${CMAKE_BINARY_DIR}/ros/msg/Dop.msg
+    # ${CMAKE_BINARY_DIR}/ros/msg/Fix.msg
+    # ${CMAKE_BINARY_DIR}/ros/msg/Position.msg 
+    ${POSITION_MSG}
+)
+
+# ament_export_dependencies(rosidl_default_runtime)
+# ament_package()
 
 set(GNSS_FILES 
     ${CMAKE_BINARY_DIR}/gen/v0/gnss/common.hpp

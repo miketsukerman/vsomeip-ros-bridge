@@ -3,11 +3,6 @@ package gnss
 typeCollection common {
     version {major 0 minor 1}
 
-    enumeration Status {
-        MODE_2D,
-        MODE_3D
-    }
-
     struct Time {
         UInt32 hours
         UInt32 minutes
@@ -28,7 +23,7 @@ typeCollection common {
     struct Position {
         UInt32 satellitesVisible
         UInt32 satellitesUsed
-        Status status
+        UInt32 status
         Fix fix
         Dop dop
     }
