@@ -11,14 +11,16 @@ Make SOME/IP data available in ROS2 natively.
 
 # Simulation
 
-https://www.nmeagen.org/
+To simulate real GPS/GNSS data coming from the receiver we would use `gpsfake` tool together with a text file
+containing small set of real NMEA messages. Can be obtained from https://www.nmeagen.org/.
 
 ## Architecture
 
-![bridge](docs/bridge.png)
-
 * We would use open source SOME/IP stack implementation (COVESA/GENIVI)
+* `gpsd` daemon + `gpsfake` utility
 * SOME/IP broadcast's published as ROS2 topics.
+
+![bridge](docs/bridge.png)
 
 UDS = Unix Domain Socket (used by GENIVI stack for communication between router and clients on localhost)
 
