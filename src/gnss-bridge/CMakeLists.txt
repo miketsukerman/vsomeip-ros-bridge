@@ -16,7 +16,7 @@ find_package(gnss_ros_lib REQUIRED)
 find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
 
-set(CLIENT_TARGET_NAME gnss-client)
+set(CLIENT_TARGET_NAME gnss-bridge)
 add_executable(${CLIENT_TARGET_NAME} 
     src/main.cpp
 )

@@ -113,7 +113,7 @@ private:
 
     void publish(const GpsDataMsg & message) {        
 
-//        RCLCPP_INFO(this->get_logger(), "Publishing %s ", message.data.c_str());
+        RCLCPP_INFO(this->get_logger(), "Publishing SOME/IP message on topic %s", Topic);
 
         publisher->publish(message);
     }
