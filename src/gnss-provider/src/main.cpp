@@ -32,8 +32,8 @@ GnssData to_gnss_data(const GpsDataMsg & gps_data) {
     dop.setVdop(gps_data.dop.vdop);
     dop.setPdop(gps_data.dop.pdop);
 
-    position.setSatellitesVisible(gps_data.satellites_visible);
-    position.setSatellitesUsed(gps_data.satellites_used);
+    position.setSatellites_visible(gps_data.satellites_visible);
+    position.setSatellites_used(gps_data.satellites_used);
     position.setDop(dop);
     position.setFix(fix);
 

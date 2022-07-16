@@ -39,20 +39,18 @@ execute_process(
         ${FIDL2ROS_TRANSLATOR} -i ${CMAKE_CURRENT_SOURCE_DIR}/src/ -f ${CMAKE_CURRENT_SOURCE_DIR}/src/gnss.fidl -o ${CMAKE_BINARY_DIR}/ros/msg/
 )
 
-message("${FIDL2ROS_TRANSLATOR} -i ${CMAKE_CURRENT_SOURCE_DIR}/src/ -f ${CMAKE_CURRENT_SOURCE_DIR}/src/gnss.fidl -o ${CMAKE_BINARY_DIR}/ros/msg/")
-
 file(RELATIVE_PATH POSITION_MSG ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_BINARY_DIR}/ros/msg/Position.msg)
+file(RELATIVE_PATH DOP_MSG ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_BINARY_DIR}/ros/msg/Dop.msg)
+file(RELATIVE_PATH FIX_MSG ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_BINARY_DIR}/ros/msg/Fix.msg)
+file(RELATIVE_PATH TIME_MSG ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_BINARY_DIR}/ros/msg/Time.msg)
 
 set(GNSS_MSG_TARGET_NAME gnss-msg)
 rosidl_generate_interfaces(${GNSS_MSG_TARGET_NAME}
-    # ${CMAKE_BINARY_DIR}/ros/msg/Dop.msg
-    # ${CMAKE_BINARY_DIR}/ros/msg/Fix.msg
-    # ${CMAKE_BINARY_DIR}/ros/msg/Position.msg 
+    ${DOP_MSG}
+    ${FIX_MSG}
+    ${TIME_MSG}
     ${POSITION_MSG}
 )
-
-# ament_export_dependencies(rosidl_default_runtime)
-# ament_package()
 
 set(GNSS_FILES 
     ${CMAKE_BINARY_DIR}/gen/v0/gnss/common.hpp
@@ -147,4 +145,5 @@ configure_file(config/commonapi.ini.in ${CMAKE_BINARY_DIR}/commonapi.ini)
 
 install(FILES ${CMAKE_BINARY_DIR}/commonapi.ini DESTINATION ${CMAKE_INSTALL_SYSCONFDIR})
 
+ament_export_dependencies(rosidl_default_runtime)
 ament_package()

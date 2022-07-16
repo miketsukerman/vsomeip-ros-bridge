@@ -21,8 +21,8 @@ GpsDataMsg to_gps_data(const GnssData & gnss_data) {
     gps_data_msg.fix.longitude = position.getFix().getLongitude();
     gps_data_msg.dop.hdop = position.getDop().getHdop();
     gps_data_msg.dop.vdop = position.getDop().getVdop();
-    gps_data_msg.satellites_visible = position.getSatellitesVisible();
-    gps_data_msg.satellites_used = position.getSatellitesUsed();
+    gps_data_msg.satellites_visible = position.getSatellites_visible();
+    gps_data_msg.satellites_used = position.getSatellites_used();
 
     return gps_data_msg;
 }

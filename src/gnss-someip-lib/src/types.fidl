@@ -21,8 +21,8 @@ typeCollection common {
     }
 
     struct Position {
-        UInt32 satellitesVisible
-        UInt32 satellitesUsed
+        UInt32 satellites_visible
+        UInt32 satellites_used
         UInt32 status
         Fix fix
         Dop dop
