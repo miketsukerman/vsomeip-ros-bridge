@@ -9,15 +9,15 @@
 
 #include <libgpsmm.h>
 
-#include <gnss_ros_lib/msg/gps_data.hpp>
+#include <gnss_someip_lib/msg/position.hpp>
 
 using namespace std::chrono;
-using GpsDataMsg = gnss_ros_lib::msg::GpsData;
+using GnssDataMsg = gnss_someip_lib::msg::Position;
 using GnssData = v0::gnss::common::GnssData;
 
-namespace TypeConversion {
+namespace Types::Conversion {
 
-GnssData to_gnss_data(const GpsDataMsg & gps_data) {
+GnssData to_gnss_data(const GnssDataMsg & gps_data) {
     GnssData gnss_data;
 
     v0::gnss::common::Position position;
@@ -43,8 +43,8 @@ GnssData to_gnss_data(const GpsDataMsg & gps_data) {
     return gnss_data;
 }
 
-GpsDataMsg to_gps_data(const gps_data_t * gps_data) {
-    GpsDataMsg gps_data_msg; 
+GnssDataMsg to_gnss_data_msg(const gps_data_t * gps_data) {
+    GnssDataMsg gps_data_msg; 
 
     gps_data_msg.fix.latitude = gps_data->fix.latitude;
     gps_data_msg.fix.longitude = gps_data->fix.longitude;
@@ -73,7 +73,7 @@ public:
         gps_rec(GpsdHost, DEFAULT_GPSD_PORT) 
     {
         // callback_group = this->create_callback_group(rclcpp::CallbackGroupType::MutuallyExclusive);        
-        publisher = this->create_publisher<GpsDataMsg>(Topic, QoS);
+        publisher = this->create_publisher<GnssDataMsg>(Topic, QoS);
 
         if(!init()) {
             RCLCPP_WARN(this->get_logger(), "No connection to gpsd");
@@ -114,7 +114,7 @@ public:
 
             RCLCPP_WARN(this->get_logger(), "Obtained data from gpsd");
 
-            GpsDataMsg msg = TypeConversion::to_gps_data(gpsd_data);
+            auto msg = Types::Conversion::to_gnss_data_msg(gpsd_data);
             
             publisher->publish(msg);
 
@@ -132,7 +132,7 @@ private:
     // rclcpp::CallbackGroup::SharedPtr callback_group;
     
     rclcpp::TimerBase::SharedPtr timer;
-    rclcpp::Publisher<GpsDataMsg>::SharedPtr publisher;
+    rclcpp::Publisher<GnssDataMsg>::SharedPtr publisher;
 };
 
 class GnssSomeIpProvider : public v0::gnss::GnssServerStubDefault {
@@ -141,11 +141,11 @@ public:
     GnssSomeIpProvider() = default;
     ~GnssSomeIpProvider() = default;
 
-    void fireDataEvent(const GpsDataMsg & gps_data) {
+    void fireDataEvent(const GnssDataMsg & gps_data) {
         
         RCLCPP_INFO(rclcpp::get_logger("GNSS_SOMEIP_Provider"), "Sending gnss data over SOME/IP.");
 
-        GnssData data = TypeConversion::to_gnss_data(gps_data);
+        auto data = Types::Conversion::to_gnss_data(gps_data);
 
         GnssServerStub::fireDataEvent(data);
     }
@@ -170,7 +170,7 @@ public:
         if(register_someip_service()) {
             RCLCPP_INFO(this->get_logger(), "SOME/IP GnssServer has been registered");
 
-            gpsd_data_subscription = this->create_subscription<GpsDataMsg>(topic, qos, std::bind(&GnssSomeIpReporter::on_gpsd_data, this, std::placeholders::_1));
+            gpsd_data_subscription = this->create_subscription<GnssDataMsg>(topic, qos, std::bind(&GnssSomeIpReporter::on_gpsd_data, this, std::placeholders::_1));
 
             publish_timer = this->create_wall_timer(timer_duration, [this]() {            
                 RCLCPP_INFO(this->get_logger(), "Timer: Broadcast GNSS data over SOME/IP");
@@ -187,14 +187,14 @@ protected:
     bool register_someip_service() {
         if(!CommonAPI::Runtime::get()->registerService(domain,instance, someip_provider)) {
             //TODO: handle error case correctly
-            RCLCPP_INFO(this->get_logger(), "Failed to register SOME/IP GnssServer");
+            RCLCPP_ERROR(this->get_logger(), "Failed to register SOME/IP GnssServer");
             return false;
         }
 
         return true;
     }
 
-    void on_gpsd_data(const GpsDataMsg & msg) 
+    void on_gpsd_data(const GnssDataMsg & msg) 
     {
         std::lock_guard<std::mutex> guard(mutex);
 
@@ -209,9 +209,9 @@ private:
 
     std::mutex mutex;
 
-    GpsDataMsg gps_data;
+    GnssDataMsg gps_data;
 
-    rclcpp::Subscription<GpsDataMsg>::SharedPtr gpsd_data_subscription;
+    rclcpp::Subscription<GnssDataMsg>::SharedPtr gpsd_data_subscription;
 };
 
 auto main(int argc, char **argv) -> int 

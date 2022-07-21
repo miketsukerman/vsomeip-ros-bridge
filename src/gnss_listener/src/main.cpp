@@ -1,22 +1,22 @@
 #include "rclcpp/rclcpp.hpp"
 
-#include <gnss_ros_lib/msg/gps_data.hpp>
+#include <gnss_someip_lib/msg/position.hpp>
 
-using GpsDataMsg = gnss_ros_lib::msg::GpsData;
+using GpsDataMsg = gnss_someip_lib::msg::Position;
 
-class GnssSubsriber : public rclcpp::Node
+class GnssTopicSubsriber : public rclcpp::Node
 {
   static constexpr auto topic = "GNSS";
   static constexpr auto qos = 10;
 
 public:
-    GnssSubsriber() : Node("GNSS_Subscriber")
+    GnssTopicSubsriber() : Node("GNSS_Subscriber")
     {
-      subscription = this->create_subscription<GpsDataMsg>(topic, qos, std::bind(&GnssSubsriber::topic_callback, this, std::placeholders::_1));
+      subscription = this->create_subscription<GpsDataMsg>(topic, qos, std::bind(&GnssTopicSubsriber::gnss_topic_callback, this, std::placeholders::_1));
     }
 
 private:
-    void topic_callback(const GpsDataMsg & msg) const
+    void gnss_topic_callback(const GpsDataMsg & msg) const
     {
       RCLCPP_INFO(this->get_logger(), "GNSS position latitude %f, longitude %f", 
           msg.fix.latitude,
@@ -30,7 +30,7 @@ private:
 auto main(int argc, char * argv[]) -> int
 {
   rclcpp::init(argc, argv);
-  rclcpp::spin(std::make_shared<GnssSubsriber>());
+  rclcpp::spin(std::make_shared<GnssTopicSubsriber>());
   rclcpp::shutdown();
   return 0;
 }

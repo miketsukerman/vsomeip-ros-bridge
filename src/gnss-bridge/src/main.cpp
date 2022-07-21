@@ -4,9 +4,9 @@
 #include <CommonAPI/CommonAPI.hpp>
 #include <v0/gnss/GnssServerProxy.hpp>
 
-#include <gnss_ros_lib/msg/gps_data.hpp>
+#include <gnss_someip_lib/msg/position.hpp>
 
-using GpsDataMsg = gnss_ros_lib::msg::GpsData;
+using GpsDataMsg = gnss_someip_lib::msg::Position;
 using GnssData = v0::gnss::common::GnssData;
 
 namespace TypesConversion {
@@ -66,6 +66,7 @@ protected:
     void init() {
         if(!someip_proxy)
         {
+            // RCLCPP_ERROR(this->get_logger(), "Not able to initialize SOME/IP proxy for GNSS");
             //TODO: handle error case correctly
             return;
         }
