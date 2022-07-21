@@ -20,18 +20,19 @@ find_package(CommonAPI-SomeIP REQUIRED)
 include(GNUInstallDirs)
 include(CMakePackageConfigHelpers)
 
+
+# TODO: find a way to use add_custom_command
 # add_custom_command(
 #     OUTPUT
-#         # ${CMAKE_BINARY_DIR}/ros/msg/Dop.msg
-#         # ${CMAKE_BINARY_DIR}/ros/msg/Fix.msg
+#         ${CMAKE_BINARY_DIR}/ros/msg/Dop.msg
+#         ${CMAKE_BINARY_DIR}/ros/msg/Fix.msg
 #         ${CMAKE_BINARY_DIR}/ros/msg/Position.msg 
 #     COMMAND 
 #         ${FIDL2ROS_TRANSLATOR} -i ${CMAKE_CURRENT_SOURCE_DIR}/src/ -f ${CMAKE_CURRENT_SOURCE_DIR}/src/gnss.fidl -o ${CMAKE_BINARY_DIR}/ros/msg/
 #     DEPENDS 
 #         ${CMAKE_CURRENT_SOURCE_DIR}/src/gnss.fidl 
 #         ${CMAKE_CURRENT_SOURCE_DIR}/src/types.fidl 
-#         ${CMAKE_CURRENT_SOURCE_DIR}/src/gnss.fdepl 
-#     
+#         ${CMAKE_CURRENT_SOURCE_DIR}/src/gnss.fdepl     
 # )
 
 execute_process(
