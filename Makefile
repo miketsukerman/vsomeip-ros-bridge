@@ -34,9 +34,6 @@ gnss-bridge:
 gnss-someip-lib:
 	colcon build --packages-select gnss_someip_lib
 
-gnss-ros-lib:
-	colcon build --packages-select gnss_ros_lib
-
 gnss-listener:
 	colcon build --packages-select gnss_listener
 

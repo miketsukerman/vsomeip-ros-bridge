@@ -9,10 +9,10 @@
 
 #include <libgpsmm.h>
 
-#include <gnss_someip_lib/msg/position.hpp>
+#include <gnss_someip_lib/msg/gnss_data.hpp>
 
 using namespace std::chrono;
-using GnssDataMsg = gnss_someip_lib::msg::Position;
+using GnssDataMsg = gnss_someip_lib::msg::GnssData;
 using GnssData = v0::gnss::common::GnssData;
 
 namespace Types::Conversion {
@@ -25,15 +25,15 @@ GnssData to_gnss_data(const GnssDataMsg & gps_data) {
     v0::gnss::common::Fix fix; 
     v0::gnss::common::Dop dop;
 
-    fix.setLatitude(gps_data.fix.latitude);
-    fix.setLongitude(gps_data.fix.longitude);
+    fix.setLatitude(gps_data.position.fix.latitude);
+    fix.setLongitude(gps_data.position.fix.longitude);
     
-    dop.setHdop(gps_data.dop.hdop);
-    dop.setVdop(gps_data.dop.vdop);
-    dop.setPdop(gps_data.dop.pdop);
+    dop.setHdop(gps_data.position.dop.hdop);
+    dop.setVdop(gps_data.position.dop.vdop);
+    dop.setPdop(gps_data.position.dop.pdop);
 
-    position.setSatellites_visible(gps_data.satellites_visible);
-    position.setSatellites_used(gps_data.satellites_used);
+    position.setSatellites_visible(gps_data.position.satellites_visible);
+    position.setSatellites_used(gps_data.position.satellites_used);
     position.setDop(dop);
     position.setFix(fix);
 
@@ -44,16 +44,16 @@ GnssData to_gnss_data(const GnssDataMsg & gps_data) {
 }
 
 GnssDataMsg to_gnss_data_msg(const gps_data_t * gps_data) {
-    GnssDataMsg gps_data_msg; 
+    GnssDataMsg msg; 
 
-    gps_data_msg.fix.latitude = gps_data->fix.latitude;
-    gps_data_msg.fix.longitude = gps_data->fix.longitude;
-    gps_data_msg.dop.hdop = gps_data->dop.hdop;
-    gps_data_msg.dop.vdop = gps_data->dop.vdop;
-    gps_data_msg.satellites_visible = gps_data->satellites_visible;
-    gps_data_msg.satellites_used = gps_data->satellites_used;
+    msg.position.fix.latitude = gps_data->fix.latitude;
+    msg.position.fix.longitude = gps_data->fix.longitude;
+    msg.position.dop.hdop = gps_data->dop.hdop;
+    msg.position.dop.vdop = gps_data->dop.vdop;
+    msg.position.satellites_visible = gps_data->satellites_visible;
+    msg.position.satellites_used = gps_data->satellites_used;
 
-    return gps_data_msg;
+    return msg;
 }
 
 } // namespace TypeConversion

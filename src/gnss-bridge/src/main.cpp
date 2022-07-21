@@ -4,9 +4,9 @@
 #include <CommonAPI/CommonAPI.hpp>
 #include <v0/gnss/GnssServerProxy.hpp>
 
-#include <gnss_someip_lib/msg/position.hpp>
+#include <gnss_someip_lib/msg/gnss_data.hpp>
 
-using GpsDataMsg = gnss_someip_lib::msg::Position;
+using GpsDataMsg = gnss_someip_lib::msg::GnssData;
 using GnssData = v0::gnss::common::GnssData;
 
 namespace TypesConversion {
@@ -17,12 +17,12 @@ GpsDataMsg to_gps_data(const GnssData & gnss_data) {
 
     auto position = gnss_data.getPosition();
 
-    gps_data_msg.fix.latitude = position.getFix().getLatitude();
-    gps_data_msg.fix.longitude = position.getFix().getLongitude();
-    gps_data_msg.dop.hdop = position.getDop().getHdop();
-    gps_data_msg.dop.vdop = position.getDop().getVdop();
-    gps_data_msg.satellites_visible = position.getSatellites_visible();
-    gps_data_msg.satellites_used = position.getSatellites_used();
+    gps_data_msg.position.fix.latitude = position.getFix().getLatitude();
+    gps_data_msg.position.fix.longitude = position.getFix().getLongitude();
+    gps_data_msg.position.dop.hdop = position.getDop().getHdop();
+    gps_data_msg.position.dop.vdop = position.getDop().getVdop();
+    gps_data_msg.position.satellites_visible = position.getSatellites_visible();
+    gps_data_msg.position.satellites_used = position.getSatellites_used();
 
     return gps_data_msg;
 }

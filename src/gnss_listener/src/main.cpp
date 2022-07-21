@@ -1,8 +1,8 @@
 #include "rclcpp/rclcpp.hpp"
 
-#include <gnss_someip_lib/msg/position.hpp>
+#include <gnss_someip_lib/msg/gnss_data.hpp>
 
-using GpsDataMsg = gnss_someip_lib::msg::Position;
+using GpsDataMsg = gnss_someip_lib::msg::GnssData;
 
 class GnssTopicSubsriber : public rclcpp::Node
 {
@@ -19,8 +19,8 @@ private:
     void gnss_topic_callback(const GpsDataMsg & msg) const
     {
       RCLCPP_INFO(this->get_logger(), "GNSS position latitude %f, longitude %f", 
-          msg.fix.latitude,
-          msg.fix.longitude
+          msg.position.fix.latitude,
+          msg.position.fix.longitude
         );
     }
 
