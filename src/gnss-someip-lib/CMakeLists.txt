@@ -37,7 +37,7 @@ include(CMakePackageConfigHelpers)
 
 execute_process(
     COMMAND 
-        ${FIDL2ROS_TRANSLATOR} -i ${CMAKE_CURRENT_SOURCE_DIR}/src/ -f ${CMAKE_CURRENT_SOURCE_DIR}/src/gnss.fidl -o ${CMAKE_BINARY_DIR}/ros/msg/
+        ${FIDL2ROS_TRANSLATOR} -i ${CMAKE_CURRENT_SOURCE_DIR}/src/ -f ${CMAKE_CURRENT_SOURCE_DIR}/src/fidl/gnss.fidl -o ${CMAKE_BINARY_DIR}/ros/msg/
 )
 
 file(RELATIVE_PATH GNSS_DATA_MSG ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_BINARY_DIR}/ros/msg/GnssData.msg)
@@ -74,13 +74,13 @@ add_custom_command(
     OUTPUT
         ${GNSS_FILES}
     COMMAND
-        ${COMMON_API_CORE_GENERATOR} -sk ${CMAKE_CURRENT_SOURCE_DIR}/src/gnss.fidl -d ${CMAKE_BINARY_DIR}/gen
+        ${COMMON_API_CORE_GENERATOR} -sk ${CMAKE_CURRENT_SOURCE_DIR}/src/fidl/gnss.fidl -d ${CMAKE_BINARY_DIR}/gen
     COMMAND
-        ${COMMON_API_SOMEIP_GENERATOR} ${CMAKE_CURRENT_SOURCE_DIR}/src/gnss.fdepl -d ${CMAKE_BINARY_DIR}/gen
+        ${COMMON_API_SOMEIP_GENERATOR} ${CMAKE_CURRENT_SOURCE_DIR}/src/fidl/gnss.fdepl -d ${CMAKE_BINARY_DIR}/gen
     DEPENDS 
-        ${CMAKE_CURRENT_SOURCE_DIR}/src/gnss.fidl 
-        ${CMAKE_CURRENT_SOURCE_DIR}/src/types.fidl 
-        ${CMAKE_CURRENT_SOURCE_DIR}/src/gnss.fdepl 
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/fidl/gnss.fidl 
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/fidl/types.fidl 
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/fidl/gnss.fdepl 
 )
 
 set(GNSS_TARGET_NAME gnss)
@@ -143,6 +143,12 @@ export(TARGETS
     FILE 
         ${GNSS_TARGET_NAME}Config.cmake
 )
+
+install(FILES 
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/types/conversion.h 
+    DESTINATION 
+    ${GNSS_INSTALL_INCLUDEDIR}/types/
+    )
 
 configure_file(config/commonapi.ini.in ${CMAKE_BINARY_DIR}/commonapi.ini)
 

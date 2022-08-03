@@ -4,30 +4,11 @@
 #include <CommonAPI/CommonAPI.hpp>
 #include <v0/gnss/GnssServerProxy.hpp>
 
+#include <types/conversion.h>
 #include <gnss_someip_lib/msg/gnss_data.hpp>
 
 using GpsDataMsg = gnss_someip_lib::msg::GnssData;
 using GnssData = v0::gnss::common::GnssData;
-
-namespace TypesConversion {
-
-GpsDataMsg to_gps_data(const GnssData & gnss_data) {
-    
-    GpsDataMsg gps_data_msg; 
-
-    auto position = gnss_data.getPosition();
-
-    gps_data_msg.position.fix.latitude = position.getFix().getLatitude();
-    gps_data_msg.position.fix.longitude = position.getFix().getLongitude();
-    gps_data_msg.position.dop.hdop = position.getDop().getHdop();
-    gps_data_msg.position.dop.vdop = position.getDop().getVdop();
-    gps_data_msg.position.satellites_visible = position.getSatellites_visible();
-    gps_data_msg.position.satellites_used = position.getSatellites_used();
-
-    return gps_data_msg;
-}
-
-} // namespace TypesConversion
 
 class AbstractSomeIpClient 
 {
@@ -81,7 +62,7 @@ protected:
         {
             someip_proxy->getDataEvent().subscribe([this](const ::v0::gnss::common::GnssData & data) {
 
-                auto message = TypesConversion::to_gps_data(data);
+                auto message = Types::Conversion::to_gps_data(data);
 
                 message_callback(message);
             });
