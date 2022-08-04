@@ -3,7 +3,7 @@
 Proof of concept project which tries to create a bridge between vsomeip / common-api
 and ROS linux environment.
 
-[![asciicast](https://asciinema.org/a/22KRCKnY9hpqAlBozFalt7Gqo.svg)](https://asciinema.org/a/22KRCKnY9hpqAlBozFalt7Gqo)
+[![asciicast](https://asciinema.org/a/gVNR0u38fNyX9Xw1i56WNlV4T.svg)](https://asciinema.org/a/gVNR0u38fNyX9Xw1i56WNlV4T)
 
 # Problem definition
 
