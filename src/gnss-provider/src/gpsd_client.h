@@ -9,6 +9,12 @@
 
 namespace Types::Conversion {
 
+/**
+ * @brief converts gpsd datatype gps_data_t to ros2 msg generated type
+ * 
+ * @param gps_data 
+ * @return GnssDataMsg 
+ */
 GnssDataMsg to_gnss_data_msg(const gps_data_t * gps_data) {
     GnssDataMsg msg; 
 
@@ -27,25 +33,28 @@ GnssDataMsg to_gnss_data_msg(const gps_data_t * gps_data) {
 // inspired by https://gist.github.com/ncoder-1/8313815ac387e6757f751dc8960f03d7
 class GpsdClient : public rclcpp::Node {
 
-    static constexpr auto GpsdHost = "localhost";
-    static constexpr auto WaitingTime = 1000000;
+    static constexpr auto node_name = "GPSD_Client_node";
 
-    static constexpr auto Topic = "GPSD";
-    static constexpr auto QoS = 10;
+    static constexpr auto gpsd_host = "localhost";
+    static constexpr auto waiting_time = 1000000;
+
+    static constexpr auto topic = "GPSD";
+    static constexpr auto qos = 10;
+
+    static constexpr auto gpsd_read_timer_delay = 500ms;
 
 public:
     GpsdClient()
-        : Node("GPSD_Client_node"),
-        gps_rec(GpsdHost, DEFAULT_GPSD_PORT) 
+        : Node(node_name),
+        gps_rec(gpsd_host, DEFAULT_GPSD_PORT) 
     {
-        // callback_group = this->create_callback_group(rclcpp::CallbackGroupType::MutuallyExclusive);        
-        publisher = this->create_publisher<GnssDataMsg>(Topic, QoS);
+        publisher = this->create_publisher<GnssDataMsg>(topic, qos);
 
         if(!init()) {
             RCLCPP_WARN(this->get_logger(), "No connection to gpsd");
         }
 
-        timer = this->create_wall_timer(500ms, std::bind(&GpsdClient::read, this));
+        timer = this->create_wall_timer(gpsd_read_timer_delay, std::bind(&GpsdClient::read, this));
 
         //TODO: handle case when there is no connection to gpsd
     }
@@ -64,7 +73,7 @@ public:
         {
             std::lock_guard<std::mutex> lock_guard(mutex);
             
-            if (!gps_rec.waiting(WaitingTime)) {
+            if (!gps_rec.waiting(waiting_time)) {
                 RCLCPP_WARN(this->get_logger(), "Waiting, failed to read data from gpsd");
                 continue;
             }
@@ -75,8 +84,6 @@ public:
                 RCLCPP_WARN(this->get_logger(), "Null, Failed to read data from gpsd");
                 continue;
             }
-
-            // const auto time_str{TimespecToTimeStr(gpsd_data->fix.time, ISO_8601)};  // you can change the 2nd argument to LOCALTIME, UTC, UNIX or ISO8601
 
             RCLCPP_WARN(this->get_logger(), "Obtained data from gpsd");
 
@@ -95,8 +102,6 @@ private:
 
     std::mutex mutex;
 
-    // rclcpp::CallbackGroup::SharedPtr callback_group;
-    
     rclcpp::TimerBase::SharedPtr timer;
     rclcpp::Publisher<GnssDataMsg>::SharedPtr publisher;
 };

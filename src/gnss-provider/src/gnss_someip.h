@@ -17,7 +17,7 @@ public:
         
         RCLCPP_INFO(rclcpp::get_logger("GNSS_SOMEIP_Provider"), "Sending gnss data over SOME/IP.");
 
-        auto data = Types::Conversion::to_gnss_data(gps_data);
+        auto data = Types::Conversion::to_capi_type(gps_data);
 
         GnssServerStub::fireDataEvent(data);
     }
@@ -27,6 +27,8 @@ public:
 template <typename T>
 class GnssSomeIpReporter : public rclcpp::Node
 {
+    static constexpr auto node_name = "GNSS_SOMEIP_Reporter";
+
     static constexpr auto domain = "local";
     static constexpr auto instance = "GnssServer";
     static constexpr auto timer_duration = 2s;
@@ -36,7 +38,7 @@ class GnssSomeIpReporter : public rclcpp::Node
 
 public:
     GnssSomeIpReporter()
-        : Node("GNSS_SOMEIP_Reporter")
+        : Node(node_name)
         , someip_provider(std::make_shared<T>())
     {
         if(register_someip_service()) {
