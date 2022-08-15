@@ -12,7 +12,13 @@ using GnssData = v0::gnss::common::GnssData;
 
 namespace Types::Conversion {
 
-GnssData to_gnss_data(const GnssDataMsg & gps_data) {
+/**
+ * @brief converts ROS2 MSG to CommonAPI generated data type 
+ * 
+ * @param gps_data 
+ * @return GnssData 
+ */
+GnssData to_capi_type(const GnssDataMsg & gps_data) {
     GnssData gnss_data;
 
     v0::gnss::common::Position position;
@@ -38,7 +44,13 @@ GnssData to_gnss_data(const GnssDataMsg & gps_data) {
     return gnss_data;
 }
 
-GnssDataMsg to_gps_data(const GnssData & gnss_data) {
+/**
+ * @brief converts CommonAPI generated data type to ROS2 data type
+ * 
+ * @param gps_data 
+ * @return GnssData 
+ */
+GnssDataMsg from_capi_type(const GnssData & gnss_data) {
     
     GnssDataMsg gps_data_msg; 
 
