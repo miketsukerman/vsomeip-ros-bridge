@@ -6,11 +6,13 @@ using GpsDataMsg = gnss_someip_lib::msg::GnssData;
 
 class GnssTopicSubsriber : public rclcpp::Node
 {
+  static constexpr auto node_name = "GNSS_Topic_Subscriber";
+
   static constexpr auto topic = "GNSS";
   static constexpr auto qos = 10;
 
 public:
-    GnssTopicSubsriber() : Node("GNSS_Subscriber")
+    GnssTopicSubsriber() : Node(node_name)
     {
       subscription = this->create_subscription<GpsDataMsg>(topic, qos, std::bind(&GnssTopicSubsriber::gnss_topic_callback, this, std::placeholders::_1));
     }
