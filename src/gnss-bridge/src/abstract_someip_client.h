@@ -8,11 +8,15 @@
 using GpsDataMsg = gnss_someip_lib::msg::GnssData;
 using GnssData = v0::gnss::common::GnssData;
 
-template <typename T>
+template<template<typename ...> class P>
 class AbstractSomeIpClient 
 {
+    using ProxyClass = P<>;
+    using ProxyClassPtr = std::shared_ptr<ProxyClass>;
+
 public: 
-    AbstractSomeIpClient(std::string domain, std::string instance) : proxy_(CommonAPI::Runtime::get()->buildProxy<v0::gnss::GnssServerProxy>(domain,instance)) 
+    AbstractSomeIpClient(std::string domain, std::string instance) 
+        : proxy_(CommonAPI::Runtime::get()->buildProxy<P>(domain,instance)) 
     {
         init();
     }
@@ -24,7 +28,7 @@ public:
     virtual void onAvailable() = 0;
 
 protected:
-    std::shared_ptr<T> proxy() {
+    ProxyClassPtr proxy() {
         return proxy_;
     }
 
@@ -40,7 +44,7 @@ protected:
             return;
         }
 
-        proxy_->getProxyStatusEvent().subscribe(std::bind(&AbstractSomeIpClient<T>::onAvailablilityStatusChange, this, std::placeholders::_1));
+        proxy_->getProxyStatusEvent().subscribe(std::bind(&AbstractSomeIpClient<P>::onAvailablilityStatusChange, this, std::placeholders::_1));
     }
 
     virtual void onAvailablilityStatusChange(CommonAPI::AvailabilityStatus status) {
@@ -49,14 +53,16 @@ protected:
         if (status == CommonAPI::AvailabilityStatus::AVAILABLE)
         {
             onAvailable();
-        }    
+        }
     }
 
 private:
-    std::shared_ptr<T> proxy_;
+    ProxyClassPtr proxy_;
 };
 
-class GnssSomeIpClient : public AbstractSomeIpClient<v0::gnss::GnssServerProxy<>>
+using GnssSomeIpProxyWrapper = AbstractSomeIpClient<v0::gnss::GnssServerProxy>;
+
+class GnssSomeIpClient : public GnssSomeIpProxyWrapper
 {
     static constexpr auto domain = "local";
     static constexpr auto instance = "GnssServer";
@@ -64,16 +70,16 @@ class GnssSomeIpClient : public AbstractSomeIpClient<v0::gnss::GnssServerProxy<>
     using MessageCallback = std::function<void(const GpsDataMsg & message)>;
 
 public:
-    GnssSomeIpClient() : AbstractSomeIpClient<v0::gnss::GnssServerProxy<>>(domain, instance) {}
+    GnssSomeIpClient() : GnssSomeIpProxyWrapper(domain, instance) {}
 
     void setMessageCallback(MessageCallback callback) {
-        message_callback = callback;
+        message_callback = std::move(callback);
     }
 
     void onAvailable() override {
         proxy()->getDataEvent().subscribe([this](const GnssData & data) {
 
-            auto message = Types::Conversion::to_gps_data(data);
+            auto message = Types::Conversion::from_capi_type(data);
 
             message_callback(message);
         });

@@ -7,8 +7,6 @@
 
 using GpsDataMsg = gnss_someip_lib::msg::GnssData;
 using GnssData = v0::gnss::common::GnssData;
-
-
 template <typename SomeIpClient> 
 class SomeIpPublisher : public rclcpp::Node
 {
