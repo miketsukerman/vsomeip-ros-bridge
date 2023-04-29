@@ -23,7 +23,7 @@ RUN wget https://github.com/COVESA/capicxx-someip-tools/releases/download/3.2.0.
     cd /opt/ && unzip commonapi_someip_generator.zip -d commonapi_someip_generator && \
     ln -s /opt/commonapi_someip_generator/commonapi-someip-generator-linux-x86_64 /usr/bin/commonapi-someip-generator
 
-RUN cd /opt && git clone https://github.com/COVESA/dlt-daemon.git && cd dlt-daemon && \
+RUN cd /opt && git clone https://github.com/COVESA/dlt-daemon.git -b v2.18.8 && cd dlt-daemon && \
     mkdir build && cd build && cmake -DCMAKE_INSTALL_PREFIX=/usr .. && make -j$(nproc) && make install
 
 RUN cd /opt && git clone https://github.com/COVESA/vsomeip.git && cd vsomeip && \
