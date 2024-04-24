@@ -1,5 +1,7 @@
 # ROS SOME/IP bridge
 
+[![ROS to SOME/IP bridge build](https://github.com/miketsukerman/vsomeip-ros-bridge/actions/workflows/makefile.yml/badge.svg)](https://github.com/miketsukerman/vsomeip-ros-bridge/actions/workflows/makefile.yml)
+
 Proof of concept project which tries to create a bridge between vsomeip / common-api
 and ROS linux environment.
 
