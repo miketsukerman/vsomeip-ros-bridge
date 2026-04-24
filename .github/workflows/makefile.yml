@@ -9,6 +9,8 @@ on:
 jobs:
   test-franca2ros:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
 
     steps:
     - name: Check out repository
@@ -30,6 +32,8 @@ jobs:
   build:
     runs-on: ubuntu-latest
     needs: test-franca2ros
+    permissions:
+      contents: read
 
     steps:
     - name: Check out repository

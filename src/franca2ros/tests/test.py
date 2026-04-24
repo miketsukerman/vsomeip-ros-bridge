@@ -266,3 +266,17 @@ class TestErrorHandling:
         make_translator(tmp_path, MALFORMED_FIDL, "bad.fidl").save(str(out))
         # No output files should have been created
         assert list(out.iterdir()) == []
+
+    def test_translator_reusable_after_parse_error(self, tmp_path):
+        """A translator that fails on one file should not affect a fresh instance."""
+        # First translator encounters malformed FIDL
+        bad_translator = make_translator(tmp_path, MALFORMED_FIDL, "bad.fidl")
+        types_bad, services_bad = bad_translator.parse()
+        assert types_bad == []
+        assert services_bad == []
+
+        # A second, independent translator on valid FIDL still works correctly
+        good_out = tmp_path / "good_out"
+        good_out.mkdir()
+        make_translator(tmp_path, BASIC_FIDL, "good.fidl").save(str(good_out))
+        assert (good_out / "Position.msg").exists()
