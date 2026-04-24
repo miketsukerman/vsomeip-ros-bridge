@@ -16,15 +16,6 @@ find_package(gnss_someip_lib REQUIRED)
 find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
 
-add_library(gnss_someip_lib INTERFACE IMPORTED)
-target_link_libraries(gnss_someip_lib 
-    INTERFACE 
-        CommonAPI
-        CommonAPI-SomeIP
-        gnss_someip_lib::gnss-msg__rosidl_generator_cpp    # TODO: figure out how to define exported targets
-        gnss_someip_lib::gnss-msg__rosidl_typesupport_cpp    # TODO: figure out how to define exported targets
-)
-
 set(CLIENT_TARGET_NAME gnss-bridge)
 add_executable(${CLIENT_TARGET_NAME} 
     src/main.cpp
@@ -39,7 +30,8 @@ target_include_directories(${CLIENT_TARGET_NAME} PRIVATE
 target_link_libraries(${CLIENT_TARGET_NAME} PRIVATE
     gnss::gnss
     rclcpp::rclcpp
-    gnss_someip_lib
+    gnss_someip_lib::gnss-msg__rosidl_generator_cpp
+    gnss_someip_lib::gnss-msg__rosidl_typesupport_cpp
 )
 
 install(TARGETS ${CLIENT_TARGET_NAME} DESTINATION lib/${PROJECT_NAME})

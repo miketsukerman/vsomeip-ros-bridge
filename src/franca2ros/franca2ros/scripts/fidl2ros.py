@@ -1,5 +1,4 @@
-from optparse import check_builtin
-from franca2ros.translator.translator import FIDLTraslator
+from franca2ros.translator.translator import FIDLTranslator
 import argparse
 
 from pathlib import Path
@@ -19,7 +18,7 @@ def main():
     check_output_dir(args.output)
 
     for fidl in args.fidl:
-        f2r = FIDLTraslator(fidl, args.import_dirs)
+        f2r = FIDLTranslator(fidl, args.import_dirs)
     
         f2r.save(args.output)
 
