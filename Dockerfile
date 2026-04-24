@@ -1,4 +1,4 @@
-FROM ros:galactic
+FROM ros:humble
 
 ENV COMMONAPI_CONFIG=/src/install/gnss_someip_lib/etc/commonapi.ini
 ENV COMMONAPI_DEFAULT_FOLDER=/src/install/gnss_someip_lib/lib/
@@ -7,7 +7,7 @@ RUN apt-get update && apt install -y wget unzip git
 
 # Installation of required tools
 RUN DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends tzdata
-RUN apt-get install -y openjdk-13-jdk openjdk-13-jre
+RUN apt-get install -y openjdk-17-jdk openjdk-17-jre
 RUN apt-get install -y g++ gcc cmake libboost-all-dev make doxygen asciidoc
 RUN apt-get install -y net-tools iproute2
 RUN apt-get install -y python3-pip
@@ -26,17 +26,17 @@ RUN wget https://github.com/COVESA/capicxx-someip-tools/releases/download/3.2.0.
 RUN cd /opt && git clone https://github.com/COVESA/dlt-daemon.git -b v2.18.8 && cd dlt-daemon && \
     mkdir build && cd build && cmake -DCMAKE_INSTALL_PREFIX=/usr .. && make -j$(nproc) && make install
 
-RUN cd /opt && git clone https://github.com/COVESA/vsomeip.git && cd vsomeip && \
+RUN cd /opt && git clone https://github.com/COVESA/vsomeip.git -b 3.3.0 && cd vsomeip && \
     mkdir build && cd build && cmake -DENABLE_MULTIPLE_ROUTING_MANAGERS=1 -DVSOMEIP_INSTALL_ROUTINGMANAGERD=1 -DCMAKE_INSTALL_PREFIX=/usr .. && \ 
     make -j$(nproc) && make install
 
-RUN cd /opt && git clone https://github.com/COVESA/capicxx-core-runtime.git && cd capicxx-core-runtime && \
+RUN cd /opt && git clone https://github.com/COVESA/capicxx-core-runtime.git -b 3.2.3 && cd capicxx-core-runtime && \
     mkdir build && cd build && cmake -DCMAKE_INSTALL_PREFIX=/usr .. && make -j$(nproc) && make install
 
-RUN cd /opt && git clone https://github.com/COVESA/capicxx-someip-runtime.git && cd capicxx-someip-runtime && \
+RUN cd /opt && git clone https://github.com/COVESA/capicxx-someip-runtime.git -b 3.2.3 && cd capicxx-someip-runtime && \
     mkdir build && cd build && cmake -DCMAKE_INSTALL_PREFIX=/usr .. && make -j$(nproc) && make install
 
-RUN cd /opt && git clone https://github.com/cameron314/concurrentqueue.git && cd concurrentqueue && \
+RUN cd /opt && git clone https://github.com/cameron314/concurrentqueue.git -b v1.0.4 && cd concurrentqueue && \
     mkdir build-cmake && cd build-cmake && cmake -DCMAKE_INSTALL_PREFIX=/usr .. && make -j$(nproc) && make install
 
 RUN pip3 install git+https://github.com/miketsukerman/pyfranca.git
@@ -51,7 +51,5 @@ RUN rm -rf /src/build /src/install /src/log
 RUN pip3 install -e /src/src/franca2ros
 
 RUN cd /src && rm -rf build install log && \ 
-    . /opt/ros/galactic/setup.sh && \
+    . /opt/ros/humble/setup.sh && \
     colcon build
-
-

@@ -60,6 +60,7 @@ GnssDataMsg from_capi_type(const GnssData & gnss_data) {
     gps_data_msg.position.fix.longitude = position.getFix().getLongitude();
     gps_data_msg.position.dop.hdop = position.getDop().getHdop();
     gps_data_msg.position.dop.vdop = position.getDop().getVdop();
+    gps_data_msg.position.dop.pdop = position.getDop().getPdop();
     gps_data_msg.position.satellites_visible = position.getSatellites_visible();
     gps_data_msg.position.satellites_used = position.getSatellites_used();
 

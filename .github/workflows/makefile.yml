@@ -7,14 +7,37 @@ on:
     branches: [ "master" ]
 
 jobs:
-  build:
-
+  test-franca2ros:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
 
     steps:
     - name: Check out repository
       uses: actions/checkout@v3
-    
-    - name: Run colcone build
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
+
+    - name: Install franca2ros and test dependencies
+      run: |
+        pip install -e src/franca2ros
+        pip install pytest
+
+    - name: Run franca2ros unit tests
+      run: python -m pytest src/franca2ros/tests/ -v
+
+  build:
+    runs-on: ubuntu-latest
+    needs: test-franca2ros
+    permissions:
+      contents: read
+
+    steps:
+    - name: Check out repository
+      uses: actions/checkout@v3
+
+    - name: Build Docker images
       run: make compose
-        

@@ -6,6 +6,8 @@
 
 #include <rclcpp/rclcpp.hpp>
 
+#include <chrono>
+
 
 class GnssSomeIpProvider : public v0::gnss::GnssServerStubDefault {
 
@@ -14,7 +16,7 @@ public:
     ~GnssSomeIpProvider() = default;
 
     void fireDataEvent(const GnssDataMsg & gps_data) {
-        
+
         RCLCPP_INFO(rclcpp::get_logger("GNSS_SOMEIP_Provider"), "Sending gnss data over SOME/IP.");
 
         auto data = Types::Conversion::to_capi_type(gps_data);
@@ -29,61 +31,61 @@ class GnssSomeIpReporter : public rclcpp::Node
 {
     static constexpr auto node_name = "GNSS_SOMEIP_Reporter";
 
-    static constexpr auto domain = "local";
-    static constexpr auto instance = "GnssServer";
-    static constexpr auto timer_duration = 2s;
-
-    static constexpr auto topic = "GPSD";
-    static constexpr auto qos = 10;
-
 public:
     GnssSomeIpReporter()
         : Node(node_name)
         , someip_provider(std::make_shared<T>())
     {
-        if(register_someip_service()) {
-            RCLCPP_INFO(this->get_logger(), "SOME/IP GnssServer has been registered");
+        this->declare_parameter<std::string>("someip_domain", "local");
+        this->declare_parameter<std::string>("someip_instance", "GnssServer");
+        this->declare_parameter<std::string>("gpsd_topic", "GPSD");
+        this->declare_parameter<int>("gpsd_qos", 10);
 
-            gpsd_data_subscription = this->create_subscription<GnssDataMsg>(topic, qos, std::bind(&GnssSomeIpReporter::on_gpsd_data, this, std::placeholders::_1));
-
-            publish_timer = this->create_wall_timer(timer_duration, [this]() {            
-                RCLCPP_INFO(this->get_logger(), "Timer: Broadcast GNSS data over SOME/IP");
-        
-                std::lock_guard<std::mutex> guard(mutex);
-
-                someip_provider->fireDataEvent(gps_data);
-            });
+        if (!try_register_and_start()) {
+            RCLCPP_WARN(this->get_logger(), "SOME/IP registration failed, scheduling retry every 5 s");
+            retry_timer_ = this->create_wall_timer(
+                std::chrono::seconds(5),
+                [this]() {
+                    if (try_register_and_start()) {
+                        retry_timer_->cancel();
+                        retry_timer_.reset();
+                    }
+                });
         }
     }
 
 protected:
 
-    bool register_someip_service() {
-        if(!CommonAPI::Runtime::get()->registerService(domain,instance, someip_provider)) {
-            //TODO: handle error case correctly
+    bool try_register_and_start() {
+        const auto domain = this->get_parameter("someip_domain").as_string();
+        const auto instance = this->get_parameter("someip_instance").as_string();
+
+        if (!CommonAPI::Runtime::get()->registerService(domain, instance, someip_provider)) {
             RCLCPP_ERROR(this->get_logger(), "Failed to register SOME/IP GnssServer");
             return false;
         }
 
+        RCLCPP_INFO(this->get_logger(), "SOME/IP GnssServer has been registered");
+
+        const auto topic = this->get_parameter("gpsd_topic").as_string();
+        const auto qos = static_cast<int>(this->get_parameter("gpsd_qos").as_int());
+
+        gpsd_data_subscription = this->create_subscription<GnssDataMsg>(
+            topic, qos,
+            std::bind(&GnssSomeIpReporter::on_gpsd_data, this, std::placeholders::_1));
+
         return true;
     }
 
-    void on_gpsd_data(const GnssDataMsg & msg) 
+    void on_gpsd_data(const GnssDataMsg & msg)
     {
-        std::lock_guard<std::mutex> guard(mutex);
+        RCLCPP_INFO(this->get_logger(), "Received GPS data, broadcasting over SOME/IP");
 
-        RCLCPP_INFO(this->get_logger(), "Received GPS raw data from GpsdClient node");
-
-        gps_data = msg;
+        someip_provider->fireDataEvent(msg);
     }
 
 private:
-    rclcpp::TimerBase::SharedPtr publish_timer;
     std::shared_ptr<T> someip_provider;
-
-    std::mutex mutex;
-
-    GnssDataMsg gps_data;
-
+    rclcpp::TimerBase::SharedPtr retry_timer_;
     rclcpp::Subscription<GnssDataMsg>::SharedPtr gpsd_data_subscription;
 };

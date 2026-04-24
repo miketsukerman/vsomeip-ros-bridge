@@ -2,6 +2,7 @@
 
 #include <CommonAPI/CommonAPI.hpp>
 #include <v0/gnss/GnssServerProxy.hpp>
+#include <rclcpp/rclcpp.hpp>
 
 #include <types/conversion.h>
 
@@ -9,14 +10,14 @@ using GpsDataMsg = gnss_someip_lib::msg::GnssData;
 using GnssData = v0::gnss::common::GnssData;
 
 template<template<typename ...> class P>
-class AbstractSomeIpClient 
+class AbstractSomeIpClient
 {
     using ProxyClass = P<>;
     using ProxyClassPtr = std::shared_ptr<ProxyClass>;
 
-public: 
-    AbstractSomeIpClient(std::string domain, std::string instance) 
-        : proxy_(CommonAPI::Runtime::get()->buildProxy<P>(domain,instance)) 
+public:
+    AbstractSomeIpClient(std::string domain, std::string instance)
+        : proxy_(CommonAPI::Runtime::get()->buildProxy<P>(domain, instance))
     {
         init();
     }
@@ -33,25 +34,23 @@ protected:
     }
 
     virtual bool initialised() {
-        return proxy_ != nullptr; 
+        return proxy_ != nullptr;
     }
 
     void init() {
-        if(!proxy_)
-        {
-            // RCLCPP_ERROR(this->get_logger(), "Not able to initialize SOME/IP proxy for GNSS");
-            //TODO: handle error case correctly
+        if (!proxy_) {
+            RCLCPP_ERROR(rclcpp::get_logger("AbstractSomeIpClient"),
+                         "Failed to build SOME/IP proxy - check SOME/IP configuration");
             return;
         }
 
-        proxy_->getProxyStatusEvent().subscribe(std::bind(&AbstractSomeIpClient<P>::onAvailablilityStatusChange, this, std::placeholders::_1));
+        proxy_->getProxyStatusEvent().subscribe(
+            std::bind(&AbstractSomeIpClient<P>::onAvailabilityStatusChange, this, std::placeholders::_1));
     }
 
-    virtual void onAvailablilityStatusChange(CommonAPI::AvailabilityStatus status) {
+    virtual void onAvailabilityStatusChange(CommonAPI::AvailabilityStatus status) {
         // first event is always CommonAPI::AvailabilityStatus::NOT_AVAILABLE
-
-        if (status == CommonAPI::AvailabilityStatus::AVAILABLE)
-        {
+        if (status == CommonAPI::AvailabilityStatus::AVAILABLE) {
             onAvailable();
         }
     }
@@ -78,9 +77,7 @@ public:
 
     void onAvailable() override {
         proxy()->getDataEvent().subscribe([this](const GnssData & data) {
-
             auto message = Types::Conversion::from_capi_type(data);
-
             message_callback(message);
         });
     }

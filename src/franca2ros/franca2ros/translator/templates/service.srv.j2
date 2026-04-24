@@ -1,0 +1,7 @@
+{% for field in in_args %}
+{{ rostype(in_args[field].type.name) }} {{ field }}
+{% endfor %}
+---
+{% for field in out_args %}
+{{ rostype(out_args[field].type.name) }} {{ field }}
+{% endfor %}

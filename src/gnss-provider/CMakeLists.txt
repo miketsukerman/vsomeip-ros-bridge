@@ -22,15 +22,6 @@ find_package(concurrentqueue REQUIRED)
 find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
 
-add_library(gnss_someip_lib INTERFACE IMPORTED)
-target_link_libraries(gnss_someip_lib 
-    INTERFACE 
-        CommonAPI
-        CommonAPI-SomeIP
-        gnss_someip_lib::gnss-msg__rosidl_generator_cpp    # TODO: figure out how to define exported targets
-        gnss_someip_lib::gnss-msg__rosidl_typesupport_cpp    # TODO: figure out how to define exported targets
-)
-
 set(SERVER_TARGET_NAME gnss-server)
 add_executable(${SERVER_TARGET_NAME} 
     src/main.cpp
@@ -45,7 +36,8 @@ target_link_libraries(${SERVER_TARGET_NAME} PRIVATE
     rclcpp::rclcpp
     concurrentqueue::concurrentqueue
     PkgConfig::gps
-    gnss_someip_lib
+    gnss_someip_lib::gnss-msg__rosidl_generator_cpp
+    gnss_someip_lib::gnss-msg__rosidl_typesupport_cpp
 )
 
 target_compile_features(${SERVER_TARGET_NAME} PRIVATE cxx_std_17)
